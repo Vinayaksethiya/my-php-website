@@ -1,0 +1,32 @@
+/* Habitat LeadGen — Contact Form 7 styling (matches the white form card) */
+.hab-cf7 .wpcf7-form p { margin: 0; }
+.hab-cf7 .wpcf7-form br { display: none; }
+.hab-cf7 label { display:block; font-size:13px; font-weight:700; margin:12px 0 5px; color:#221c16; }
+.hab-cf7 .wpcf7-form-control-wrap { display:block; }
+.hab-cf7 input[type="text"],
+.hab-cf7 input[type="tel"],
+.hab-cf7 input[type="email"],
+.hab-cf7 select,
+.hab-cf7 textarea {
+  width:100%; padding:12px 14px; border:1px solid #d8cdb6; border-radius:10px;
+  font-size:15px; font-family:inherit; background:#fffdf8; color:#221c16;
+}
+.hab-cf7 textarea { resize:vertical; }
+.hab-cf7 input[type="submit"].wpcf7-submit {
+  display:inline-flex; width:100%; justify-content:center; align-items:center; gap:10px;
+  margin-top:20px; background:#f0a01e; color:#1a1512; border:none; border-radius:999px;
+  padding:14px 30px; font-size:15.5px; font-weight:800; cursor:pointer;
+}
+.hab-cf7 input[type="submit"].wpcf7-submit:hover { background:#d98a0b; }
+.hab-cf7 input[type="submit"].wpcf7-submit:disabled { opacity:.6; cursor:wait; }
+.hab-cf7 .wpcf7-spinner { display:block; margin:10px auto 0; }
+.hab-cf7 .wpcf7-response-output {
+  border:none; border-radius:10px; margin:16px 0 0; padding:14px;
+  text-align:center; font-size:15px;
+}
+.hab-cf7 form.sent .wpcf7-response-output { background:#fdf3e0; color:#1a1512; }
+.hab-cf7 form.invalid .wpcf7-response-output,
+.hab-cf7 form.failed .wpcf7-response-output { background:#fdf0ef; color:#8a2a20; }
+.hab-cf7 .wpcf7-not-valid-tip { display:block; font-size:12.5px; color:#c0392b; margin-top:4px; }
+.hab-cf7 .wpcf7-not-valid { border-color:#c0392b !important; }
+.modal .hab-cf7 { position:relative; width:100%; }
