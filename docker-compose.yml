@@ -16,7 +16,7 @@ services:
   wordpress:
     build:
       context: ./habitat-leadgen
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "8080:80"
