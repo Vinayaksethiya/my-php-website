@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: leadgen_wp
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    build:
+      context: ./habitat-leadgen
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: leadgen_wp
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppassword
+    depends_on:
+      - db
+    volumes:
+      - wp_data:/var/www/html
+      - ./habitat-leadgen:/var/www/html/wp-content/themes/habitat-leadgen
+
+volumes:
+  db_data:
+  wp_data:
