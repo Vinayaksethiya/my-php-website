@@ -38,7 +38,13 @@ hlead_load_env( "$base/.env" );           // generic fallback
 define( 'DB_NAME',     getenv('WORDPRESS_DB_NAME')     ?: 'leadgen_wp'   );
 define( 'DB_USER',     getenv('WORDPRESS_DB_USER')     ?: 'wpuser'       );
 define( 'DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD') ?: 'wppassword'   );
-define( 'DB_HOST',     getenv('WORDPRESS_DB_HOST')     ?: 'db'           );
+// DB_HOST supports optional port: "hostname" or "hostname:3306"
+$_db_host = getenv('WORDPRESS_DB_HOST') ?: 'db';
+$_db_port = getenv('WORDPRESS_DB_PORT') ?: '';
+if ( $_db_port && strpos( $_db_host, ':' ) === false ) {
+    $_db_host = $_db_host . ':' . $_db_port;
+}
+define( 'DB_HOST', $_db_host );
 define( 'DB_CHARSET',  'utf8mb4' );
 define( 'DB_COLLATE',  '' );
 
