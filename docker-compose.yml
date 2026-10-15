@@ -23,12 +23,11 @@ services:
     restart: always
     ports:
       - "8080:80"
+    env_file:
+      - .env.local          # local environment variables
     environment:
+      WP_ENV: local
       WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_NAME: leadgen_wp
-      WORDPRESS_DB_USER: wpuser
-      WORDPRESS_DB_PASSWORD: wppassword
-      WORDPRESS_TABLE_PREFIX: wp_
     depends_on:
       db:
         condition: service_healthy

@@ -1,0 +1,8 @@
+# Environment files — never commit real credentials
+.env
+.env.local
+.env.development
+.env.production
+
+# Keep example file for reference
+!.env.example
