@@ -96,6 +96,39 @@ add_action( 'admin_menu', function () {
 add_action( 'admin_init', function () {
   register_setting( 'hlead_forms_group', 'hlead_forms' );
   register_setting( 'hlead_options_group', 'hlead_options' );
+
+  // CSV export — must run before any output is sent
+  if (
+    isset( $_GET['page'], $_GET['hlead_export'] )
+    && $_GET['page'] === 'habitat-leadgen'
+    && current_user_can( 'manage_options' )
+    && check_admin_referer( 'hlead_export' )
+  ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'leadgen_leads';
+    $rows  = $wpdb->get_results( "SELECT * FROM $table ORDER BY created_at DESC", ARRAY_A );
+
+    // Clear any buffered output
+    if ( ob_get_level() ) { ob_end_clean(); }
+
+    header( 'Content-Type: text/csv; charset=utf-8' );
+    header( 'Content-Disposition: attachment; filename="behiveads-leads-' . date('Y-m-d') . '.csv"' );
+    header( 'Pragma: no-cache' );
+    header( 'Expires: 0' );
+
+    $out = fopen( 'php://output', 'w' );
+    if ( ! empty( $rows ) ) {
+      fputcsv( $out, array_keys( $rows[0] ) );
+      foreach ( $rows as $row ) {
+        fputcsv( $out, $row );
+      }
+    } else {
+      fputcsv( $out, array( 'id','page_slug','full_name','phone','email','zip','topic','details','ip_address','created_at' ) );
+      fputcsv( $out, array( '—','No leads yet','','','','','','','','' ) );
+    }
+    fclose( $out );
+    exit;
+  }
 } );
 
 function hlead_settings_page() {
@@ -144,19 +177,12 @@ function hlead_settings_page() {
     <?php
     global $wpdb;
     $table = $wpdb->prefix . 'leadgen_leads';
-    // CSV export
-    if ( isset( $_GET['hlead_export'] ) && check_admin_referer( 'hlead_export' ) ) {
-      $rows = $wpdb->get_results( "SELECT * FROM $table ORDER BY created_at DESC", ARRAY_A );
-      header( 'Content-Type: text/csv' );
-      header( 'Content-Disposition: attachment; filename="leads-' . date('Y-m-d') . '.csv"' );
-      $out = fopen( 'php://output', 'w' );
       if ( ! empty( $rows ) ) {
         fputcsv( $out, array_keys( $rows[0] ) );
         foreach ( $rows as $row ) { fputcsv( $out, $row ); }
       }
       fclose( $out );
       exit;
-    }
     // Delete single lead
     if ( isset( $_GET['hlead_delete'] ) && check_admin_referer( 'hlead_delete_' . intval( $_GET['hlead_delete'] ) ) ) {
       $wpdb->delete( $table, array( 'id' => intval( $_GET['hlead_delete'] ) ) );
