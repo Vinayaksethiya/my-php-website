@@ -1,8 +1,8 @@
 /*
-Theme Name: Habitat LeadGen
-Description: Seven lead-generation landing pages (Auto Insurance, Health Insurance, Medicare, Home Services, Pest Control, Final Expense, Water Services) in a dark + cream + orange design. Each page has its own hero enquiry form and popup quote form, wired to Contact Form 7 via Settings > Habitat LeadGen.
-Version: 1.0
-Author: (you)
+Theme Name: BehiveAds LeadGen
+Description: Seven lead-generation landing pages for BehiveAds (behiveads.com) — Auto Insurance, Health Insurance, Medicare, Home Services, Pest Control, Final Expense, Water Services — in a dark + cream + orange design. Each page has its own hero enquiry form and popup quote form, wired to Contact Form 7 via Settings > BehiveAds.
+Version: 1.1
+Author: BehiveAds
 License: GPLv2 or later
 Text Domain: habitat-leadgen
 */
@@ -109,3 +109,9 @@ Text Domain: habitat-leadgen
     .hero{padding-top:110px}
   }
 
+
+/* Disclaimer */
+.disclaimer-wrap{margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.10)}
+.disclaimer{font-size:12px;line-height:1.7;color:#8a8070;max-width:960px}
+.disclaimer strong{color:#b0a492}
+@media(max-width:900px){.disclaimer{font-size:11.5px}}

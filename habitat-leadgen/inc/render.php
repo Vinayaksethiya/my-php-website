@@ -1,8 +1,9 @@
 <?php
 /**
- * Renders a full Habitat LeadGen landing page.
- * Forms: CF7 shortcodes from Settings > Habitat LeadGen when set,
- * otherwise a static demo form so the page still looks complete.
+ * Renders a full BehiveAds landing page.
+ * Domain : behiveads.com
+ * Forms  : CF7 shortcodes from Settings > BehiveAds when set,
+ *          otherwise a static demo form so the page still looks complete.
  */
 require_once __DIR__ . '/pages.php';
 
@@ -16,9 +17,28 @@ function hlead_forms() {
   return is_array( $o ) ? $o : array();
 }
 
+/**
+ * Strip non-numeric chars and return a tel: href value.
+ * Formats display number as (888) 888-8888 if none stored.
+ */
 function hlead_tel( $display ) {
   $tel = preg_replace( '/[^0-9+]/', '', $display );
-  return $tel === '' ? '+10000000000' : $tel;
+  return $tel === '' ? '+18888888888' : $tel;
+}
+
+/**
+ * Format a raw phone string to (NNN) NNN-NNNN display format.
+ * Leaves the value unchanged if it doesn't match a 10-digit US number.
+ */
+function hlead_format_phone( $raw ) {
+  $digits = preg_replace( '/[^0-9]/', '', $raw );
+  if ( strlen( $digits ) === 11 && $digits[0] === '1' ) {
+    $digits = substr( $digits, 1 );
+  }
+  if ( strlen( $digits ) === 10 ) {
+    return '(' . substr( $digits, 0, 3 ) . ') ' . substr( $digits, 3, 3 ) . '-' . substr( $digits, 6 );
+  }
+  return $raw; // return as-is if format doesn't match
 }
 
 function hlead_static_fields( $cfg, $prefix, $with_details ) {
@@ -33,7 +53,7 @@ function hlead_static_fields( $cfg, $prefix, $with_details ) {
   return
     '<div class="frow">'
     . '<div><label for="' . $prefix . '-name">Full Name <i>*</i></label><input id="' . $prefix . '-name" required name="name" placeholder="John Smith" autocomplete="name"></div>'
-    . '<div><label for="' . $prefix . '-phone">Phone <i>*</i></label><input id="' . $prefix . '-phone" required name="phone" type="tel" placeholder="(555) 123-4567" autocomplete="tel"></div>'
+    . '<div><label for="' . $prefix . '-phone">Phone <i>*</i></label><input id="' . $prefix . '-phone" required name="phone" type="tel" placeholder="(888) 888-8888" autocomplete="tel"></div>'
     . '</div>'
     . '<label for="' . $prefix . '-email">Email Address <i>*</i></label><input id="' . $prefix . '-email" required name="email" type="email" placeholder="john@example.com" autocomplete="email">'
     . '<div class="frow">'
@@ -50,7 +70,8 @@ function hlead_form_card( $cfg, $shortcode, $prefix, $with_details, $phone_displ
   if ( $in_modal ) {
     echo '<button type="button" class="close" aria-label="Close">&times;</button>';
   }
-  echo '<span class="free">&#9679; FREE QUOTE</span>';
+  // Badge — "FREE" replaced with "NO-COST"
+  echo '<span class="free">&#9679; NO-COST QUOTE</span>';
   echo '<h3>' . esc_html( $cfg['form_h3'] ) . '</h3>';
   if ( $shortcode !== '' ) {
     echo do_shortcode( $shortcode );
@@ -72,16 +93,23 @@ function hlead_render_page( $slug ) {
   if ( ! isset( $pages[ $slug ] ) ) {
     wp_die( 'Unknown landing page.' );
   }
-  $cfg = $pages[ $slug ];
-  $cfg['page_slug'] = $slug; // make slug available inside form card
-  $forms = hlead_forms();
-  $hero_sc  = isset( $forms[ $slug ]['hero'] )  ? trim( $forms[ $slug ]['hero'] )  : '';
-  $popup_sc = isset( $forms[ $slug ]['popup'] ) ? trim( $forms[ $slug ]['popup'] ) : '';
-  $phone_display = hlead_opt( 'phone', '[YOUR PHONE NUMBER]' );
+  $cfg           = $pages[ $slug ];
+  $cfg['page_slug'] = $slug;
+  $forms         = hlead_forms();
+  $hero_sc       = isset( $forms[ $slug ]['hero'] )  ? trim( $forms[ $slug ]['hero'] )  : '';
+  $popup_sc      = isset( $forms[ $slug ]['popup'] ) ? trim( $forms[ $slug ]['popup'] ) : '';
+
+  // Phone: format to (NNN) NNN-NNNN; fall back to placeholder
+  $phone_raw     = hlead_opt( 'phone', '8888888888' );
+  $phone_display = hlead_format_phone( $phone_raw );
+  if ( $phone_display === '8888888888' ) { $phone_display = '(888) 888-8888'; }
   $phone_tel     = hlead_tel( $phone_display );
-  $business      = hlead_opt( 'business', '[Your business name]' );
-  $eyebrow = implode( ' &middot; ', array_map( 'esc_html', $cfg['dd_opts'] ) );
-  $hero_img = esc_url( get_template_directory_uri() . '/assets/img/' . $cfg['hero_img'] );
+
+  $business      = hlead_opt( 'business', 'BehiveAds' );
+  $eyebrow       = implode( ' &middot; ', array_map( 'esc_html', $cfg['dd_opts'] ) );
+  $hero_img      = esc_url( get_template_directory_uri() . '/assets/img/' . $cfg['hero_img'] );
+  $canonical     = 'https://behiveads.com/' . esc_attr( $slug ) . '/';
+
   add_filter( 'pre_get_document_title', function () use ( $cfg ) { return $cfg['page_title']; } );
   ?>
 <!DOCTYPE html>
@@ -89,13 +117,21 @@ function hlead_render_page( $slug ) {
 <head>
 <meta charset="<?php bloginfo( 'charset' ); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="<?php echo esc_attr( $cfg['h1'] . ' — ' . $cfg['lead'] ); ?>">
+<link rel="canonical" href="<?php echo esc_url( $canonical ); ?>">
+<!-- Open Graph -->
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="<?php echo esc_attr( $cfg['page_title'] ); ?>">
+<meta property="og:description" content="<?php echo esc_attr( $cfg['lead'] ); ?>">
+<meta property="og:url"         content="<?php echo esc_url( $canonical ); ?>">
+<meta property="og:site_name"   content="BehiveAds">
 <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="#"><span class="mark">&#128028;</span> <?php echo esc_html( $cfg['brand'] ); ?></a>
+    <a class="brand" href="https://behiveads.com/"><span class="mark">&#128028;</span> BehiveAds</a>
     <a class="btn" href="tel:<?php echo esc_attr( $phone_tel ); ?>">&#128222; <span><?php echo esc_html( $phone_display ); ?></span></a>
   </div>
 </header>
@@ -189,10 +225,19 @@ function hlead_render_page( $slug ) {
 
 <footer>
   <div class="wrap">
-    <span><b><?php echo esc_html( $cfg['brand'] ); ?></b> &mdash; <?php echo esc_html( $business ); ?></span>
+    <span><b>BehiveAds</b> &mdash; <?php echo esc_html( $business ); ?></span>
     <span>Call: <a href="tel:<?php echo esc_attr( $phone_tel ); ?>"><?php echo esc_html( $phone_display ); ?></a></span>
+    <span><a href="https://behiveads.com/" style="color:var(--orange);text-decoration:none;font-weight:700">behiveads.com</a></span>
   </div>
-  <div class="wrap" style="margin-top:12px">[Your own service-area, pricing and guarantee disclaimer goes here. Availability and terms vary by location.]</div>
+  <div class="wrap disclaimer-wrap">
+    <p class="disclaimer">
+      <strong>Disclaimer:</strong> Behive Ads is a service to assist homeowners in connecting with local service providers.
+      All contractors/providers are independent, and Behive Ads does not warrant or guarantee any work performed.
+      It is the responsibility of the homeowner to verify that the hired contractor furnishes the necessary license
+      and insurance required for the work being performed. All persons depicted in a photo or video are actors or
+      models and not contractors listed on Behive Ads.
+    </p>
+  </div>
 </footer>
 
 <div class="modal" id="quoteModal" aria-hidden="true">
@@ -236,7 +281,6 @@ function hlead_render_page( $slug ) {
           }
         })
         .catch(function(){
-          // Fallback: show success anyway so UX isn't broken
           f.querySelector('.success').style.display = 'block';
         })
         .finally(function(){

@@ -90,7 +90,7 @@ add_action( 'after_setup_theme', function () {
 /* ---------- Settings > Habitat LeadGen (admin page) ---------- */
 
 add_action( 'admin_menu', function () {
-  add_options_page( 'Habitat LeadGen', 'Habitat LeadGen', 'manage_options', 'habitat-leadgen', 'hlead_settings_page' );
+  add_options_page( 'BehiveAds', 'BehiveAds', 'manage_options', 'habitat-leadgen', 'hlead_settings_page' );
 } );
 
 add_action( 'admin_init', function () {
@@ -106,7 +106,7 @@ function hlead_settings_page() {
   $options = get_option( 'hlead_options', array() );
   ?>
   <div class="wrap">
-    <h1>Habitat LeadGen</h1>
+    <h1>BehiveAds</h1>
     <p>Paste your Contact Form 7 shortcodes below (create the forms under <b>Contact &gt; Contact Forms</b> first). Leave a field empty to show the styled demo form instead.</p>
     <form method="post" action="options.php">
       <?php settings_fields( 'hlead_options_group' ); ?>
@@ -134,7 +134,7 @@ function hlead_settings_page() {
     </form>
     <h2>How to use</h2>
     <ol>
-      <li>Create 7 Pages (<b>Pages &gt; Add New</b>) and assign each its <b>Habitat LeadGen</b> template.</li>
+      <li>Create 7 Pages (<b>Pages &gt; Add New</b>) and assign each its <b>BehiveAds</b> template.</li>
       <li>Create the 14 Contact Form 7 forms and paste the shortcodes above.</li>
       <li>Hero images live in the theme's <code>assets/img/</code> folder — replace them with your own photos any time.</li>
     </ol>
