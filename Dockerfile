@@ -1,19 +1,38 @@
 FROM wordpress:php8.2-apache
 
-# Enable mod_rewrite for WordPress pretty permalinks
-RUN a2enmod rewrite
+# ---------- System dependencies ----------
+RUN apt-get update && apt-get install -y \
+    less \
+    curl \
+    default-mysql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# Allow .htaccess overrides
+# ---------- WP-CLI ----------
+RUN curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
+
+# ---------- Apache ----------
+RUN a2enmod rewrite
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
-# Copy wp-config.php to WordPress root
+# ---------- wp-config.php ----------
 COPY wp-config.php /var/www/html/wp-config.php
 
-# Copy the theme into the WordPress themes directory
+# ---------- Theme ----------
 COPY habitat-leadgen/ /var/www/html/wp-content/themes/habitat-leadgen/
 
-# Set correct file permissions
-RUN chown -R www-data:www-data /var/www/html/wp-config.php
+# ---------- Setup script ----------
+COPY setup.sh /setup.sh
+RUN chmod +x /setup.sh
+
+# ---------- Entrypoint ----------
+# Run setup THEN start Apache
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 RUN chown -R www-data:www-data /var/www/html/wp-content/themes/habitat-leadgen/
 
 EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]
