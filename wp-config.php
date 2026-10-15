@@ -56,6 +56,14 @@ if ( getenv('RENDER_EXTERNAL_URL') ) {
     define( 'WP_SITEURL', getenv('RENDER_EXTERNAL_URL') );
 }
 
+// ---------- Force HTTPS on Render (fixes too-many-redirects) ----------
+if ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ) {
+    $_SERVER['HTTPS'] = 'on';
+}
+if ( isset( $_SERVER['HTTP_X_FORWARDED_HOST'] ) ) {
+    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+}
+
 // ---------- Auth Keys & Salts ----------
 // Generate at: https://api.wordpress.org/secret-key/1.1/salt/
 define( 'AUTH_KEY',         getenv('WP_AUTH_KEY')         ?: 'change-me-local-auth-key'         );
