@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 
   db:
@@ -12,6 +10,11 @@ services:
       MYSQL_ROOT_PASSWORD: rootpassword
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uwpuser", "-pwppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   wordpress:
     build:
@@ -25,8 +28,10 @@ services:
       WORDPRESS_DB_NAME: leadgen_wp
       WORDPRESS_DB_USER: wpuser
       WORDPRESS_DB_PASSWORD: wppassword
+      WORDPRESS_TABLE_PREFIX: wp_
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - wp_data:/var/www/html
       - ./habitat-leadgen:/var/www/html/wp-content/themes/habitat-leadgen
