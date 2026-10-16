@@ -42,11 +42,23 @@ else
     wp option update home    "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
 fi
 
-# ---------- Set business details ----------
+# ---------- Set business details (runs every deploy to force update) ----------
 echo "Setting business details..."
-wp option patch update hlead_options phone "(888) 888-8888" --allow-root --path=/var/www/html 2>/dev/null || \
-wp option update hlead_options '{"business":"BehiveAds","phone":"(888) 888-8888"}' --format=json --allow-root --path=/var/www/html
-echo "Phone number set to (888) 888-8888"
+# Get existing options and update phone
+EXISTING_OPTIONS=$(wp option get hlead_options --format=json --allow-root --path=/var/www/html 2>/dev/null)
+if [ -n "$EXISTING_OPTIONS" ] && [ "$EXISTING_OPTIONS" != "false" ]; then
+    # Update only phone, keep other fields
+    wp eval '
+        $opts = get_option("hlead_options", array());
+        $opts["phone"] = "(888) 888-8888";
+        if (empty($opts["business"])) $opts["business"] = "BehiveAds";
+        update_option("hlead_options", $opts);
+        echo "Phone updated to: " . $opts["phone"] . "\n";
+    ' --allow-root --path=/var/www/html
+else
+    wp option update hlead_options '{"business":"BehiveAds","phone":"(888) 888-8888"}' --format=json --allow-root --path=/var/www/html
+fi
+echo "Business details set."
 
 # ---------- Activate theme ----------
 echo "Activating theme..."
