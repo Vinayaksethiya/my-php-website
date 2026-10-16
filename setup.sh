@@ -2,7 +2,8 @@
 # BehiveAds — WordPress auto-setup script
 # Runs on container start, waits for DB, then sets up everything via WP-CLI.
 
-set -e
+# Do NOT exit on error — let each step try independently
+set +e
 
 # ---------- Install WP-CLI ----------
 if ! command -v wp &> /dev/null; then
