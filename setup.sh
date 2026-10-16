@@ -41,6 +41,12 @@ else
     wp option update home    "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
 fi
 
+# ---------- Set business details ----------
+echo "Setting business details..."
+wp option patch update hlead_options phone "(888) 888-8888" --allow-root --path=/var/www/html 2>/dev/null || \
+wp option update hlead_options '{"business":"BehiveAds","phone":"(888) 888-8888"}' --format=json --allow-root --path=/var/www/html
+echo "Phone number set to (888) 888-8888"
+
 # ---------- Activate theme ----------
 echo "Activating theme..."
 wp theme activate habitat-leadgen --allow-root --path=/var/www/html

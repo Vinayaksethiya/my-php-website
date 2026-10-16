@@ -100,9 +100,9 @@ function hlead_render_page( $slug ) {
   $popup_sc      = isset( $forms[ $slug ]['popup'] ) ? trim( $forms[ $slug ]['popup'] ) : '';
 
   // Phone: format to (NNN) NNN-NNNN; fall back to placeholder
-  $phone_raw     = hlead_opt( 'phone', '8888888888' );
+  $phone_raw     = hlead_opt( 'phone', '(888) 888-8888' );
   $phone_display = hlead_format_phone( $phone_raw );
-  if ( $phone_display === '8888888888' ) { $phone_display = '(888) 888-8888'; }
+  if ( $phone_display === '(888) 888-8888' || $phone_display === '' ) { $phone_display = '(888) 888-8888'; }
   $phone_tel     = hlead_tel( $phone_display );
 
   $business      = hlead_opt( 'business', 'BehiveAds' );
