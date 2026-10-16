@@ -9,6 +9,14 @@ require_once __DIR__ . '/pages.php';
 
 function hlead_opt( $key, $default = '' ) {
   $o = get_option( 'hlead_options', array() );
+  // Phone: always use env var or hardcoded default — never stored value
+  if ( $key === 'phone' ) {
+    $env_phone = getenv('WP_PHONE') ?: '(888) 888-8888';
+    // If stored value exists and is NOT the old Indian number, use it
+    $stored = isset( $o[$key] ) && $o[$key] !== '' ? $o[$key] : '';
+    $is_old = ( strpos( $stored, '8305991192' ) !== false || strpos( $stored, '+91' ) !== false );
+    return ( $stored !== '' && ! $is_old ) ? $stored : $env_phone;
+  }
   return isset( $o[ $key ] ) && $o[ $key ] !== '' ? $o[ $key ] : $default;
 }
 
