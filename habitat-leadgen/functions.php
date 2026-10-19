@@ -91,6 +91,7 @@ add_action( 'admin_menu', function () {
 add_action( 'admin_init', function () {
   register_setting( 'hlead_forms_group',   'hlead_forms' );
   register_setting( 'hlead_options_group', 'hlead_options' );
+  register_setting( 'hlead_phones_group',  'hlead_phones' ); // per-page phone numbers
 
   // CSV export — runs before any HTML output
   if (
@@ -145,11 +146,39 @@ function hlead_settings_page() {
           <td><input id="hlead_business" class="regular-text" type="text" name="hlead_options[business]" value="<?php echo esc_attr( $options['business'] ?? '' ); ?>"></td>
         </tr>
         <tr>
-          <th scope="row"><label for="hlead_phone">Phone number</label></th>
-          <td><input id="hlead_phone" class="regular-text" type="text" name="hlead_options[phone]" value="<?php echo esc_attr( $options['phone'] ?? '' ); ?>" placeholder="(888) 888-8888"></td>
+          <th scope="row"><label for="hlead_phone">Default phone number</label></th>
+          <td>
+            <input id="hlead_phone" class="regular-text" type="text" name="hlead_options[phone]" value="<?php echo esc_attr( $options['phone'] ?? '' ); ?>" placeholder="(888) 888-8888">
+            <p class="description">This number shows on all pages unless overridden below.</p>
+          </td>
         </tr>
       </table>
       <?php submit_button( 'Save business details' ); ?>
+    </form>
+
+    <?php $phones = get_option( 'hlead_phones', array() ); ?>
+    <form method="post" action="options.php">
+      <?php settings_fields( 'hlead_phones_group' ); ?>
+      <h2>&#128222; Per-page phone numbers</h2>
+      <p>Set a different phone number for each landing page. Leave blank to use the default number above.</p>
+      <table class="form-table">
+        <?php foreach ( $pages as $slug => $cfg ) : ?>
+        <tr>
+          <th scope="row"><label for="phone_<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $cfg['brand'] ); ?></label></th>
+          <td>
+            <input
+              id="phone_<?php echo esc_attr( $slug ); ?>"
+              class="regular-text"
+              type="text"
+              name="hlead_phones[<?php echo esc_attr( $slug ); ?>]"
+              value="<?php echo esc_attr( $phones[ $slug ] ?? '' ); ?>"
+              placeholder="(888) 888-8888 — leave blank for default"
+            >
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </table>
+      <?php submit_button( 'Save per-page phone numbers' ); ?>
     </form>
 
     <form method="post" action="options.php">

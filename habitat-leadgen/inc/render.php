@@ -107,10 +107,12 @@ function hlead_render_page( $slug ) {
   $hero_sc       = isset( $forms[ $slug ]['hero'] )  ? trim( $forms[ $slug ]['hero'] )  : '';
   $popup_sc      = isset( $forms[ $slug ]['popup'] ) ? trim( $forms[ $slug ]['popup'] ) : '';
 
-  // Phone: format to (NNN) NNN-NNNN; fall back to placeholder
-  $phone_raw     = hlead_opt( 'phone', '(888) 888-8888' );
+  // Phone: per-page override first, then default, then hardcoded fallback
+  $phones        = get_option( 'hlead_phones', array() );
+  $page_phone    = isset( $phones[ $slug ] ) && trim( $phones[ $slug ] ) !== '' ? trim( $phones[ $slug ] ) : '';
+  $phone_raw     = $page_phone !== '' ? $page_phone : hlead_opt( 'phone', '(888) 888-8888' );
   $phone_display = hlead_format_phone( $phone_raw );
-  if ( $phone_display === '(888) 888-8888' || $phone_display === '' ) { $phone_display = '(888) 888-8888'; }
+  if ( $phone_display === '' ) { $phone_display = '(888) 888-8888'; }
   $phone_tel     = hlead_tel( $phone_display );
 
   $business      = hlead_opt( 'business', 'BehiveAds' );
