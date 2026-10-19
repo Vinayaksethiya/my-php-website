@@ -23,7 +23,7 @@ for i in $(seq 1 30); do
     sleep 5
 done
 
-# ---------- Run WordPress setup if not installed ----------
+# ---------- WordPress install ----------
 if ! wp core is-installed --allow-root --path=/var/www/html 2>/dev/null; then
     echo "Installing WordPress..."
     wp core install \
@@ -42,23 +42,32 @@ else
     wp option update home    "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
 fi
 
-# ---------- Set business details (runs every deploy to force update) ----------
-echo "Setting business details..."
-# Get existing options and update phone
-EXISTING_OPTIONS=$(wp option get hlead_options --format=json --allow-root --path=/var/www/html 2>/dev/null)
-if [ -n "$EXISTING_OPTIONS" ] && [ "$EXISTING_OPTIONS" != "false" ]; then
-    # Update only phone, keep other fields
-    wp eval '
-        $opts = get_option("hlead_options", array());
+# ---------- Business details ----------
+# Only fix phone if it is still the old Indian number or empty.
+# If admin has changed it via Settings > BehiveAds, leave it alone.
+echo "Checking business details..."
+wp eval '
+    $opts  = get_option("hlead_options", array());
+    $phone = isset($opts["phone"]) ? $opts["phone"] : "";
+    $is_old = (
+        strpos($phone, "8305991192") !== false ||
+        strpos($phone, "+91")        !== false ||
+        trim($phone) === ""
+    );
+    if ($is_old) {
         $opts["phone"] = "(888) 888-8888";
-        if (empty($opts["business"])) $opts["business"] = "BehiveAds";
         update_option("hlead_options", $opts);
-        echo "Phone updated to: " . $opts["phone"] . "\n";
-    ' --allow-root --path=/var/www/html
-else
-    wp option update hlead_options '{"business":"BehiveAds","phone":"(888) 888-8888"}' --format=json --allow-root --path=/var/www/html
-fi
-echo "Business details set."
+        echo "Phone set to (888) 888-8888\n";
+    } else {
+        echo "Phone already set to: " . $phone . " — keeping admin value\n";
+    }
+    if (empty($opts["business"])) {
+        $opts["business"] = "BehiveAds";
+        update_option("hlead_options", $opts);
+        echo "Business name set to BehiveAds\n";
+    }
+' --allow-root --path=/var/www/html
+echo "Business details done."
 
 # ---------- Activate theme ----------
 echo "Activating theme..."
@@ -106,7 +115,7 @@ create_page "Home Services"    "home-services"    "page-home-services.php"
 create_page "Final Expense"    "final-expense"    "page-final-expense.php"
 create_page "Water Services"   "water-services"   "page-water-services.php"
 
-echo "All pages created."
+echo "All 7 pages done."
 
 # ---------- Flush rewrite rules ----------
 wp rewrite flush --hard --allow-root --path=/var/www/html
