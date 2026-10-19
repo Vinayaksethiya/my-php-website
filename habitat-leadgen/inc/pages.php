@@ -17,7 +17,7 @@ function hlead_pages() {
     'pest-control' => array(
       'page_title'   => 'Pest Control — Get a No-Cost Quote | BehiveAds',
       'brand'        => 'BehiveAds Pest Control',
-      'h1'           => 'A pest-free home starts with one call',
+      'h1'           => 'Get rid of pests — starts with one call',
       'lead'         => 'Tell us what you are seeing and a local licensed technician will inspect your property, explain a treatment plan in plain language, and treat the source of the problem.',
       'tick1'        => 'No-cost inspection',
       'tick2'        => 'No obligation',
