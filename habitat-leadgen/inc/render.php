@@ -62,8 +62,8 @@ function hlead_form_card( $cfg, $shortcode, $prefix, $with_details, $phone_displ
   if ( $in_modal ) {
     echo '<button type="button" class="close" aria-label="Close">&times;</button>';
   }
-  // Badge — "FREE" replaced with "NO-COST"
-  echo '<span class="free">&#9679; NO-COST QUOTE</span>';
+  // Badge
+  echo '<span class="free">&#9679; GET A QUOTE</span>';
   echo '<h3>' . esc_html( $cfg['form_h3'] ) . '</h3>';
   if ( $shortcode !== '' ) {
     echo do_shortcode( $shortcode );
