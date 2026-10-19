@@ -9,14 +9,6 @@ require_once __DIR__ . '/pages.php';
 
 function hlead_opt( $key, $default = '' ) {
   $o = get_option( 'hlead_options', array() );
-  // Phone: always use env var or hardcoded default — never stored value
-  if ( $key === 'phone' ) {
-    $env_phone = getenv('WP_PHONE') ?: '(888) 888-8888';
-    // If stored value exists and is NOT the old Indian number, use it
-    $stored = isset( $o[$key] ) && $o[$key] !== '' ? $o[$key] : '';
-    $is_old = ( strpos( $stored, '8305991192' ) !== false || strpos( $stored, '+91' ) !== false );
-    return ( $stored !== '' && ! $is_old ) ? $stored : $env_phone;
-  }
   return isset( $o[ $key ] ) && $o[ $key ] !== '' ? $o[ $key ] : $default;
 }
 
@@ -27,7 +19,6 @@ function hlead_forms() {
 
 /**
  * Strip non-numeric chars and return a tel: href value.
- * Formats display number as (888) 888-8888 if none stored.
  */
 function hlead_tel( $display ) {
   $tel = preg_replace( '/[^0-9+]/', '', $display );
@@ -35,18 +26,11 @@ function hlead_tel( $display ) {
 }
 
 /**
- * Format a raw phone string to (NNN) NNN-NNNN display format.
- * Leaves the value unchanged if it doesn't match a 10-digit US number.
+ * Format phone for display — NO enforcement.
+ * Returns the number exactly as stored/entered.
  */
 function hlead_format_phone( $raw ) {
-  $digits = preg_replace( '/[^0-9]/', '', $raw );
-  if ( strlen( $digits ) === 11 && $digits[0] === '1' ) {
-    $digits = substr( $digits, 1 );
-  }
-  if ( strlen( $digits ) === 10 ) {
-    return '(' . substr( $digits, 0, 3 ) . ') ' . substr( $digits, 3, 3 ) . '-' . substr( $digits, 6 );
-  }
-  return $raw; // return as-is if format doesn't match
+  return $raw; // return as-is — admin decides the format
 }
 
 function hlead_static_fields( $cfg, $prefix, $with_details ) {
@@ -107,12 +91,12 @@ function hlead_render_page( $slug ) {
   $hero_sc       = isset( $forms[ $slug ]['hero'] )  ? trim( $forms[ $slug ]['hero'] )  : '';
   $popup_sc      = isset( $forms[ $slug ]['popup'] ) ? trim( $forms[ $slug ]['popup'] ) : '';
 
-  // Phone: per-page override first, then default, then hardcoded fallback
+  // Phone: per-page override first, then default — exactly as entered, no format change
   $phones        = get_option( 'hlead_phones', array() );
   $page_phone    = isset( $phones[ $slug ] ) && trim( $phones[ $slug ] ) !== '' ? trim( $phones[ $slug ] ) : '';
-  $phone_raw     = $page_phone !== '' ? $page_phone : hlead_opt( 'phone', '(888) 888-8888' );
-  $phone_display = hlead_format_phone( $phone_raw );
-  if ( $phone_display === '' ) { $phone_display = '(888) 888-8888'; }
+  $phone_display = $page_phone !== '' ? $page_phone : hlead_opt( 'phone', '(888) 888-8888' );
+  if ( trim( $phone_display ) === '' ) { $phone_display = '(888) 888-8888'; }
+  $phone_tel     = hlead_tel( $phone_display );
   $phone_tel     = hlead_tel( $phone_display );
 
   $business      = hlead_opt( 'business', 'BehiveAds' );
