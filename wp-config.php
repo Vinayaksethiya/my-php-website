@@ -76,10 +76,9 @@ define( 'LOGGED_IN_SALT',   getenv('WP_LOGGED_IN_SALT')   ?: 'change-me-local-lo
 define( 'NONCE_SALT',       getenv('WP_NONCE_SALT')       ?: 'change-me-local-nonce-salt'       );
 
 // ---------- Debug ----------
-// local=true, development=true, production=false
-define( 'WP_DEBUG',         $wp_env !== 'production' );
-define( 'WP_DEBUG_LOG',     $wp_env !== 'production' );
-define( 'WP_DEBUG_DISPLAY', $wp_env === 'local'      );
+define( 'WP_DEBUG',         true  );
+define( 'WP_DEBUG_LOG',     true  );
+define( 'WP_DEBUG_DISPLAY', true  );
 
 // ---------- Bootstrap ----------
 if ( ! defined( 'ABSPATH' ) ) {
