@@ -97,7 +97,6 @@ function hlead_render_page( $slug ) {
   $phone_display = $page_phone !== '' ? $page_phone : hlead_opt( 'phone', '(888) 888-8888' );
   if ( trim( $phone_display ) === '' ) { $phone_display = '(888) 888-8888'; }
   $phone_tel     = hlead_tel( $phone_display );
-  $phone_tel     = hlead_tel( $phone_display );
 
   $business      = hlead_opt( 'business', 'BehiveAds' );
   $eyebrow       = implode( ' &middot; ', array_map( 'esc_html', $cfg['dd_opts'] ) );
