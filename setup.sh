@@ -31,15 +31,26 @@ if ! wp core is-installed --allow-root --path=/var/www/html 2>/dev/null; then
         --path=/var/www/html \
         --url="${RENDER_EXTERNAL_URL:-http://localhost:8080}" \
         --title="BehiveAds" \
-        --admin_user="${WP_ADMIN_USER:-admin}" \
-        --admin_password="${WP_ADMIN_PASSWORD:-Admin@1234}" \
-        --admin_email="${WP_ADMIN_EMAIL:-admin@behiveads.com}" \
+        --admin_user="${WP_ADMIN_USER:-behiveads_admin}" \
+        --admin_password="${WP_ADMIN_PASSWORD:-BehiveAds@2024!}" \
+        --admin_email="${WP_ADMIN_EMAIL:-Behiveads@gmail.com}" \
         --skip-email
     echo "WordPress installed."
 else
-    echo "WordPress already installed — updating URLs..."
+    echo "WordPress already installed — updating URLs and admin credentials..."
     wp option update siteurl "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
     wp option update home    "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
+    # Update admin user credentials
+    wp user update "${WP_ADMIN_USER:-behiveads_admin}" \
+        --user_pass="${WP_ADMIN_PASSWORD:-BehiveAds@2024!}" \
+        --user_email="${WP_ADMIN_EMAIL:-Behiveads@gmail.com}" \
+        --allow-root --path=/var/www/html 2>/dev/null || \
+    wp user update 1 \
+        --user_login="${WP_ADMIN_USER:-behiveads_admin}" \
+        --user_pass="${WP_ADMIN_PASSWORD:-BehiveAds@2024!}" \
+        --user_email="${WP_ADMIN_EMAIL:-Behiveads@gmail.com}" \
+        --allow-root --path=/var/www/html 2>/dev/null
+    echo "Admin credentials updated."
 fi
 
 # ---------- Business details ----------
