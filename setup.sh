@@ -80,7 +80,38 @@ wp eval '
 ' --allow-root --path=/var/www/html
 echo "Business details done."
 
-# ---------- Activate theme ----------
+# ---------- Ensure admin user exists with correct credentials (runs every deploy) ----------
+echo "Setting up admin user..."
+# Check if behiveads_admin exists
+ADMIN_EXISTS=$(wp user get behiveads_admin --field=ID --allow-root --path=/var/www/html 2>/dev/null)
+if [ -n "$ADMIN_EXISTS" ]; then
+    # Update existing user password
+    wp user update behiveads_admin \
+        --user_pass="BehiveAds@2024!" \
+        --user_email="Behiveads@gmail.com" \
+        --allow-root --path=/var/www/html
+    echo "Admin user updated: behiveads_admin"
+else
+    # Check if user ID 1 exists and rename it
+    USER1=$(wp user get 1 --field=user_login --allow-root --path=/var/www/html 2>/dev/null)
+    if [ -n "$USER1" ]; then
+        wp user update 1 \
+            --user_login="behiveads_admin" \
+            --user_pass="BehiveAds@2024!" \
+            --user_email="Behiveads@gmail.com" \
+            --role=administrator \
+            --allow-root --path=/var/www/html
+        echo "Admin user renamed to behiveads_admin"
+    else
+        # Create fresh admin
+        wp user create behiveads_admin Behiveads@gmail.com \
+            --user_pass="BehiveAds@2024!" \
+            --role=administrator \
+            --allow-root --path=/var/www/html
+        echo "Admin user created: behiveads_admin"
+    fi
+fi
+echo "Admin setup done."
 echo "Activating theme..."
 wp theme activate habitat-leadgen --allow-root --path=/var/www/html
 echo "Theme activated."
