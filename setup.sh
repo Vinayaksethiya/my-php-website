@@ -149,8 +149,9 @@ create_page() {
     fi
 }
 
-create_page "Plumbing"        "plumbing"        "page-plumbing.php"
-create_page "Pest Control"     "pest-control"     "page-pest-control.php"
+create_page "Plumbing"                  "plumbing"           "page-plumbing.php"
+create_page "Pest Control"             "pest-control"       "page-pest-control.php"
+create_page "Pest Control (No Form)"   "pest-control-info"  "page-pest-control-no-form.php"
 create_page "Auto Insurance"   "auto-insurance"   "page-auto-insurance.php"
 create_page "Health Insurance" "health-insurance" "page-health-insurance.php"
 create_page "Medicare"         "medicare"         "page-medicare.php"
