@@ -18,11 +18,25 @@ function hlead_forms() {
 }
 
 /**
- * Strip non-numeric chars and return a tel: href value.
+ * Strip non-numeric chars and return a valid tel: href value.
+ * Always ensures +1 country code for US numbers.
  */
 function hlead_tel( $display ) {
-  $tel = preg_replace( '/[^0-9+]/', '', $display );
-  return $tel === '' ? '+18888888888' : $tel;
+  $digits = preg_replace( '/[^0-9]/', '', $display );
+  // If starts with 1 and is 11 digits — already has country code
+  if ( strlen( $digits ) === 11 && $digits[0] === '1' ) {
+    return '+' . $digits;
+  }
+  // 10 digit US number — add +1
+  if ( strlen( $digits ) === 10 ) {
+    return '+1' . $digits;
+  }
+  // International numbers starting with + — keep as is
+  if ( strpos( $display, '+' ) === 0 ) {
+    return '+' . $digits;
+  }
+  // Fallback
+  return $digits !== '' ? '+1' . $digits : '+18888888888';
 }
 
 /**
