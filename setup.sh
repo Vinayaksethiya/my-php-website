@@ -158,7 +158,7 @@ create_page "Home Services"    "home-services"    "page-home-services.php"
 create_page "Final Expense"    "final-expense"    "page-final-expense.php"
 create_page "Water Services"   "water-services"   "page-water-services.php"
 
-echo "All 7 pages done."
+echo "All 8 pages done."
 
 # ---------- Flush rewrite rules ----------
 wp rewrite flush --hard --allow-root --path=/var/www/html
