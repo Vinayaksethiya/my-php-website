@@ -100,6 +100,7 @@ create_page() {
     fi
 }
 
+create_page "Roofing"                 "roofing"              "page-roofing.php"
 create_page "Plumbing"                "plumbing"             "page-plumbing.php"
 create_page "Pest Control"            "pest-control"         "page-pest-control.php"
 create_page "Pest Control No Form"    "pest-control-info"    "page-pest-control-no-form.php"
@@ -112,6 +113,18 @@ create_page "Water Services"          "water-services"       "page-water-service
 
 echo "All pages verified."
 
-# ---------- Final rewrite flush ----------
+# ---------- Final rewrite flush + force .htaccess ----------
+cat > /var/www/html/.htaccess << 'HTACCESS'
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+HTACCESS
 wp rewrite flush --hard --allow-root --path=/var/www/html
 echo "BehiveAds setup complete!"
