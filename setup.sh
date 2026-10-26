@@ -133,6 +133,7 @@ create_page "Health Insurance"        "health-insurance"     "page-health-insura
 create_page "Medicare"                "medicare"             "page-medicare.php"
 create_page "Home Services"           "home-services"        "page-home-services.php"
 create_page "Final Expense"           "final-expense"        "page-final-expense.php"
+create_page "Final Expense 2"        "final-expense-2"      "page-final-expense-2.php"
 create_page "Water Services"          "water-services"       "page-water-services.php"
 
 echo "All pages verified."
