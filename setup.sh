@@ -40,13 +40,11 @@ fi
 wp option update siteurl "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
 wp option update home    "${RENDER_EXTERNAL_URL:-http://localhost:8080}" --allow-root --path=/var/www/html
 
-# ---------- Admin user — always update password ----------
-echo "Updating admin credentials..."
-wp user update 1 \
-    --user_pass="BehiveAds@2024!" \
-    --user_email="Behiveads@gmail.com" \
-    --allow-root --path=/var/www/html 2>/dev/null
-echo "Admin password updated."
+# ---------- Force admin password reset — ALWAYS runs every deploy ----------
+echo "Force resetting admin password..."
+wp user update 1 --user_pass="BehiveAds@2024!" --allow-root --path=/var/www/html 2>/dev/null
+wp user update 1 --user_login="admin" --allow-root --path=/var/www/html 2>/dev/null
+echo "Admin: username=admin password=BehiveAds@2024!"
 
 # ---------- Business details ----------
 echo "Checking business details..."
@@ -57,6 +55,32 @@ wp eval '
     if ($is_old) { $opts["phone"] = "(888) 888-8888"; update_option("hlead_options", $opts); echo "Phone set\n"; }
     if (empty($opts["business"])) { $opts["business"] = "BehiveAds"; update_option("hlead_options", $opts); }
 ' --allow-root --path=/var/www/html
+
+# ---------- Ensure leads table exists ----------
+echo "Ensuring leads table exists..."
+wp eval '
+global $wpdb;
+$table = $wpdb->prefix . "leadgen_leads";
+$charset = $wpdb->get_charset_collate();
+$sql = "CREATE TABLE IF NOT EXISTS $table (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    page_slug     VARCHAR(80)     NOT NULL DEFAULT \"\",
+    full_name     VARCHAR(160)    NOT NULL DEFAULT \"\",
+    phone         VARCHAR(40)     NOT NULL DEFAULT \"\",
+    email         VARCHAR(160)    NOT NULL DEFAULT \"\",
+    zip           VARCHAR(20)     NOT NULL DEFAULT \"\",
+    topic         VARCHAR(120)    NOT NULL DEFAULT \"\",
+    details       TEXT                     DEFAULT NULL,
+    ip_address    VARCHAR(45)     NOT NULL DEFAULT \"\",
+    created_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) $charset;";
+require_once ABSPATH . "wp-admin/includes/upgrade.php";
+dbDelta($sql);
+$count = $wpdb->get_var("SELECT COUNT(*) FROM $table");
+echo "Leads table OK — $count leads stored\n";
+' --allow-root --path=/var/www/html
+echo "Leads table checked."
 
 # ---------- Activate theme ----------
 echo "Activating theme..."
