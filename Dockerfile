@@ -22,9 +22,11 @@ COPY wp-config.php /var/www/html/wp-config.php
 # ---------- Theme ----------
 COPY habitat-leadgen/ /var/www/html/wp-content/themes/habitat-leadgen/
 
-# ---------- Setup script ----------
+# ---------- Setup scripts ----------
 COPY setup.sh /setup.sh
 RUN chmod +x /setup.sh
+COPY create-pages.sh /create-pages.sh
+RUN chmod +x /create-pages.sh
 
 # ---------- Entrypoint ----------
 # Run setup THEN start Apache

@@ -5,12 +5,14 @@
 docker-entrypoint.sh apache2-foreground &
 APACHE_PID=$!
 
-# Wait for Apache + PHP to be fully ready
 echo "Waiting for Apache to start..."
 sleep 15
 
-# Run BehiveAds setup (creates pages, activates theme, sets permalinks)
+# Run main setup
 /setup.sh
+
+# Run page creation separately to ensure all pages exist
+/create-pages.sh
 
 # Keep Apache running in foreground
 wait $APACHE_PID
