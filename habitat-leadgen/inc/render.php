@@ -441,7 +441,7 @@ function hlead_render_page_no_form( $slug ) {
   </div>
   <div class="wrap disclaimer-wrap">
     <p class="disclaimer">
-      <strong>Disclaimer:</strong> Behive Ads is a service to assist homeowners in connecting with local service providers.
+      <strong>24/7 Disclaimer:</strong> Behive Ads is a service to assist homeowners in connecting with local service providers.
       All contractors/providers are independent, and Behive Ads does not warrant or guarantee any work performed.
       It is the responsibility of the homeowner to verify that the hired contractor furnishes the necessary license
       and insurance required for the work being performed. All persons depicted in a photo or video are actors or
