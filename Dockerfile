@@ -20,7 +20,7 @@ RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 COPY wp-config.php /var/www/html/wp-config.php
 
 # ---------- Theme ----------
-COPY habitat-leadgen/ /var/www/html/wp-content/themes/habitat-leadgen/
+COPY theme/ /var/www/html/wp-content/themes/habitat-leadgen/
 
 # ---------- Setup scripts ----------
 COPY setup.sh /setup.sh
