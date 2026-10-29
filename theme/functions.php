@@ -177,6 +177,20 @@ function hlead_settings_page() {
           </td>
         </tr>
         <?php endforeach; ?>
+        <!-- Extra pages not in main loop -->
+        <tr>
+          <th scope="row"><label for="phone_pest-control-info">BehiveAds Pest Control (No Form)</label></th>
+          <td>
+            <input
+              id="phone_pest-control-info"
+              class="regular-text"
+              type="text"
+              name="hlead_phones[pest-control-info]"
+              value="<?php echo esc_attr( $phones['pest-control-info'] ?? '' ); ?>"
+              placeholder="(888) 888-8888 — leave blank for default"
+            >
+          </td>
+        </tr>
       </table>
       <?php submit_button( 'Save per-page phone numbers' ); ?>
     </form>
