@@ -49,7 +49,7 @@ function hlead_save_lead_handler() {
     'details'    => sanitize_textarea_field( wp_unslash( $_POST['details'] ?? '' ) ),
     'ip_address' => sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' ),
   );
-  if ( empty( $data['full_name'] ) || empty( $data['phone'] ) || empty( $data['email'] ) ) {
+  if ( empty( $data['full_name'] ) || empty( $data['phone'] ) ) {
     wp_send_json_error( array( 'message' => 'Required fields missing.' ) );
   }
   $inserted = $wpdb->insert( $table, $data );

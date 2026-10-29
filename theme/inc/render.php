@@ -61,7 +61,7 @@ function hlead_static_fields( $cfg, $prefix, $with_details ) {
     . '<div><label for="' . $prefix . '-name">Full Name <i>*</i></label><input id="' . $prefix . '-name" required name="name" placeholder="John Smith" autocomplete="name"></div>'
     . '<div><label for="' . $prefix . '-phone">Phone <i>*</i></label><input id="' . $prefix . '-phone" required name="phone" type="tel" placeholder="(888) 888-8888" autocomplete="tel"></div>'
     . '</div>'
-    . '<label for="' . $prefix . '-email">Email Address <i>*</i></label><input id="' . $prefix . '-email" required name="email" type="email" placeholder="john@example.com" autocomplete="email">'
+    . '<label for="' . $prefix . '-email">Email Address</label><input id="' . $prefix . '-email" name="email" type="email" placeholder="john@example.com (optional)" autocomplete="email">'
     . '<div class="frow">'
     . '<div><label for="' . $prefix . '-zip">ZIP Code <i>*</i></label><input id="' . $prefix . '-zip" required name="zip" inputmode="numeric" placeholder="90210" autocomplete="postal-code"></div>'
     . '<div><label for="' . $prefix . '-topic">' . esc_html( $cfg['dd_label'] ) . ' <i>*</i></label>'
