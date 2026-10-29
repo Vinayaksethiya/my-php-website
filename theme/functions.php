@@ -91,7 +91,28 @@ add_action( 'admin_menu', function () {
 add_action( 'admin_init', function () {
   register_setting( 'hlead_forms_group',   'hlead_forms' );
   register_setting( 'hlead_options_group', 'hlead_options' );
-  register_setting( 'hlead_phones_group',  'hlead_phones' ); // per-page phone numbers
+  register_setting( 'hlead_phones_group',  'hlead_phones' );
+
+  // Lead inline edit AJAX
+  add_action( 'wp_ajax_hlead_update_lead', function() {
+    check_ajax_referer( 'hlead_update_lead', 'nonce' );
+    if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Unauthorized' );
+    global $wpdb;
+    $table   = $wpdb->prefix . 'leadgen_leads';
+    $id      = intval( $_POST['id'] ?? 0 );
+    $field   = sanitize_key( $_POST['field'] ?? '' );
+    $value   = sanitize_text_field( wp_unslash( $_POST['value'] ?? '' ) );
+    $allowed = array( 'full_name', 'phone', 'email', 'zip', 'topic', 'details', 'page_slug' );
+    if ( ! $id || ! in_array( $field, $allowed, true ) ) {
+      wp_send_json_error( 'Invalid field' );
+    }
+    $updated = $wpdb->update( $table, array( $field => $value ), array( 'id' => $id ) );
+    if ( $updated !== false ) {
+      wp_send_json_success( array( 'value' => $value ) );
+    } else {
+      wp_send_json_error( 'DB error' );
+    }
+  } );
 
   // CSV export — runs before any HTML output
   if (
@@ -246,7 +267,15 @@ function hlead_settings_page() {
     <?php if ( empty( $leads ) ) : ?>
       <p style="color:#888">No leads yet — submit a form on any landing page to see entries here.</p>
     <?php else : ?>
-    <table class="widefat striped" style="margin-top:12px">
+    <style>
+      .hlead-editable { cursor:pointer; border-bottom:1px dashed #aaa; min-width:60px; display:inline-block; }
+      .hlead-editable:hover { background:#fffde7; }
+      .hlead-edit-input { width:100%; padding:3px 5px; border:1px solid #0073aa; border-radius:3px; font-size:13px; }
+      .hlead-saving { opacity:0.5; }
+      .hlead-saved { color:green; font-weight:bold; }
+    </style>
+    <p style="color:#666;font-size:13px">&#9998; Click any cell to edit — changes save automatically.</p>
+    <table class="widefat striped" style="margin-top:8px">
       <thead>
         <tr>
           <th>#</th><th>Date</th><th>Page</th><th>Name</th>
@@ -260,22 +289,78 @@ function hlead_settings_page() {
           'hlead_delete_' . $lead->id
         );
       ?>
-        <tr>
+        <tr data-lead-id="<?php echo (int) $lead->id; ?>">
           <td><?php echo (int) $lead->id; ?></td>
           <td><?php echo esc_html( $lead->created_at ); ?></td>
-          <td><code><?php echo esc_html( $lead->page_slug ); ?></code></td>
-          <td><?php echo esc_html( $lead->full_name ); ?></td>
-          <td><?php echo esc_html( $lead->phone ); ?></td>
-          <td><?php echo esc_html( $lead->email ); ?></td>
-          <td><?php echo esc_html( $lead->zip ); ?></td>
-          <td><?php echo esc_html( $lead->topic ); ?></td>
-          <td><?php echo esc_html( $lead->details ); ?></td>
+          <td><span class="hlead-editable" data-field="page_slug"><?php echo esc_html( $lead->page_slug ); ?></span></td>
+          <td><span class="hlead-editable" data-field="full_name"><?php echo esc_html( $lead->full_name ); ?></span></td>
+          <td><span class="hlead-editable" data-field="phone"><?php echo esc_html( $lead->phone ); ?></span></td>
+          <td><span class="hlead-editable" data-field="email"><?php echo esc_html( $lead->email ); ?></span></td>
+          <td><span class="hlead-editable" data-field="zip"><?php echo esc_html( $lead->zip ); ?></span></td>
+          <td><span class="hlead-editable" data-field="topic"><?php echo esc_html( $lead->topic ); ?></span></td>
+          <td><span class="hlead-editable" data-field="details"><?php echo esc_html( $lead->details ); ?></span></td>
           <td><?php echo esc_html( $lead->ip_address ); ?></td>
-          <td><a href="<?php echo esc_url( $del_url ); ?>" onclick="return confirm('Delete this lead?')" class="button button-small">Delete</a></td>
+          <td><a href="<?php echo esc_url( $del_url ); ?>" onclick="return confirm('Delete this lead?')" class="button button-small" style="color:#c00">Delete</a></td>
         </tr>
       <?php endforeach; ?>
       </tbody>
     </table>
+    <script>
+    (function(){
+      var nonce = '<?php echo wp_create_nonce("hlead_update_lead"); ?>';
+      var ajaxUrl = '<?php echo admin_url("admin-ajax.php"); ?>';
+
+      document.querySelectorAll('.hlead-editable').forEach(function(cell){
+        cell.addEventListener('click', function(){
+          if (cell.querySelector('input')) return; // already editing
+          var oldVal = cell.innerText.trim();
+          var input  = document.createElement('input');
+          input.type  = 'text';
+          input.value = oldVal;
+          input.className = 'hlead-edit-input';
+          cell.innerHTML = '';
+          cell.appendChild(input);
+          input.focus();
+          input.select();
+
+          function saveEdit(){
+            var newVal = input.value.trim();
+            var row    = cell.closest('tr');
+            var id     = row.dataset.leadId;
+            var field  = cell.dataset.field;
+            if (newVal === oldVal) { cell.innerHTML = newVal || '&mdash;'; return; }
+            cell.classList.add('hlead-saving');
+            var data = new URLSearchParams();
+            data.append('action','hlead_update_lead');
+            data.append('nonce', nonce);
+            data.append('id',    id);
+            data.append('field', field);
+            data.append('value', newVal);
+            fetch(ajaxUrl, { method:'POST', body:data })
+              .then(function(r){ return r.json(); })
+              .then(function(res){
+                cell.classList.remove('hlead-saving');
+                cell.innerHTML = newVal || '&mdash;';
+                if(res.success){
+                  cell.style.background = '#eaffea';
+                  setTimeout(function(){ cell.style.background=''; }, 1500);
+                } else {
+                  cell.innerHTML = oldVal;
+                  alert('Save failed — please try again.');
+                }
+              })
+              .catch(function(){ cell.innerHTML = oldVal; });
+          }
+
+          input.addEventListener('blur',  saveEdit);
+          input.addEventListener('keydown', function(e){
+            if (e.key === 'Enter')  { input.blur(); }
+            if (e.key === 'Escape') { cell.innerHTML = oldVal; }
+          });
+        });
+      });
+    })();
+    </script>
     <?php
     $total_pages = ceil( $total / $per_page );
     if ( $total_pages > 1 ) {
