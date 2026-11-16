@@ -152,4 +152,25 @@ RewriteRule . /index.php [L]
 # END WordPress
 HTACCESS
 wp rewrite flush --hard --allow-root --path=/var/www/html
+# ---------- Set per-page phone numbers ----------
+echo "Setting per-page phone numbers..."
+wp eval '
+$phones = get_option("hlead_phones", array());
+$defaults = array(
+    "roofing"           => "+1 (725) 699-0424",
+    "plumbing"          => "+1 (725) 444-7852",
+    "pest-control"      => "+1 (844) 986-0315",
+    "auto-insurance"    => "+1 (866) 271-7561",
+    "home-services"     => "+1 (844) 524-3056",
+    "final-expense-2"   => "+1 (833) 356-2551",
+    "pest-control-info" => "+1 (844) 986-0315",
+);
+foreach ($defaults as $slug => $num) {
+    if (empty($phones[$slug])) {
+        $phones[$slug] = $num;
+    }
+}
+update_option("hlead_phones", $phones);
+echo "Phone numbers set.\n";
+' --allow-root --path=/var/www/html
 echo "BehiveAds setup complete!"
