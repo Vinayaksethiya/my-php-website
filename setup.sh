@@ -135,6 +135,7 @@ create_page "Home Services"           "home-services"        "page-home-services
 create_page "Final Expense"           "final-expense"        "page-final-expense.php"
 create_page "Final Expense 2"        "final-expense-2"      "page-final-expense-2.php"
 create_page "Water Services"          "water-services"       "page-water-services.php"
+create_page "Plumbing 2"             "plumbing-2"           "page-plumbing-2.php"
 
 echo "All pages verified."
 
@@ -164,6 +165,7 @@ $defaults = array(
     "home-services"     => "+1 (844) 524-3056",
     "final-expense-2"   => "+1 (833) 356-2551",
     "pest-control-info" => "+1 (844) 986-0315",
+    "plumbing-2"        => "+1 (725) 444-7852",
 );
 foreach ($defaults as $slug => $num) {
     if (empty($phones[$slug])) {
