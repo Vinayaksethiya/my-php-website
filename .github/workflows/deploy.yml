@@ -1,4 +1,3 @@
-
 name: Deploy to AWS EC2
 
 on:
@@ -11,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Code
@@ -22,22 +22,25 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 5m
+          command_timeout: 12m
           script: |
             set -e
             cd /home/ec2-user/my-php-website
 
-            echo "Pulling latest code..."
+            echo "=== Syncing code from main ==="
             git fetch origin main
             git reset --hard origin/main
 
-            echo "Checking Docker Compose..."
+            echo "=== Validating Compose config ==="
             sudo docker compose config -q
 
-            echo "Building Docker images..."
-            sudo docker compose up -d --build --remove-orphans
+            echo "=== Pulling pre-built images (no rebuild unless Dockerfile changed) ==="
+            sudo docker compose pull --ignore-pull-failures || true
 
-            echo "Checking containers..."
+            echo "=== Restarting containers ==="
+            sudo docker compose up -d --remove-orphans
+
+            echo "=== Container status ==="
             sudo docker compose ps
 
-            echo "Deployment completed!"
+            echo "=== Deployment complete ==="
