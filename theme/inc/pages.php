@@ -234,7 +234,7 @@ function hlead_pages() {
     /* ------------------------------------------------------------------ */
     'pest-control-1' => array(
       'page_title'   => 'Pest Control — Book an Inspection | BehiveAds',
-      'brand'        => 'BehiveAds Pest Control',
+      'brand'        => 'BehiveAds Pest Control 1',
       'h1'           => 'Get rid of pests — starts with one call',
       'lead'         => 'Tell us what you are seeing and a local licensed technician will inspect your property, explain a treatment plan in plain language, and treat the source of the problem.',
       'tick1'        => 'Inspection included',
