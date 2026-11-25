@@ -33,7 +33,6 @@ create_page() {
 create_page "Final Expense 2"       "final-expense-2"      "page-final-expense-2.php"
 create_page "Plumbing"              "plumbing"             "page-plumbing.php"
 create_page "Roofing"               "roofing"              "page-roofing.php"
-create_page "Pest Control No Form"  "pest-control-info"    "page-pest-control-no-form.php"
 
 $WP rewrite flush --hard 2>/dev/null
 echo "Done!"

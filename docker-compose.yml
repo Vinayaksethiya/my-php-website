@@ -1,5 +1,5 @@
-services:
 
+services:
   db:
     image: mysql:8.0
     restart: always
@@ -21,8 +21,8 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    ports:
-      - "8080:80"
+    expose:
+      - "80"
     env_file:
       - .env.local
     environment:
@@ -35,6 +35,24 @@ services:
       - wp_data:/var/www/html
       - ./theme:/var/www/html/wp-content/themes/habitat-leadgen
 
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - wordpress
+
 volumes:
   db_data:
   wp_data:
+  caddy_data:
+  caddy_config:
+

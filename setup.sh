@@ -127,7 +127,6 @@ create_page() {
 create_page "Roofing"                 "roofing"              "page-roofing.php"
 create_page "Plumbing"                "plumbing"             "page-plumbing.php"
 create_page "Pest Control"            "pest-control"         "page-pest-control.php"
-create_page "Pest Control No Form"    "pest-control-info"    "page-pest-control-no-form.php"
 create_page "Pest Control 1"          "pest-control-1"       "page-pest-control-1.php"
 create_page "Auto Insurance"          "auto-insurance"       "page-auto-insurance.php"
 create_page "Health Insurance"        "health-insurance"     "page-health-insurance.php"
@@ -165,7 +164,6 @@ $defaults = array(
     "auto-insurance"    => "+1 (866) 271-7561",
     "home-services"     => "+1 (844) 524-3056",
     "final-expense-2"   => "+1 (833) 356-2551",
-    "pest-control-info" => "+1 (844) 986-0315",
     "pest-control-1"    => "+1 (844) 986-0315",
     "plumbing-2"        => "+1 (725) 444-7852",
 );

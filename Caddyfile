@@ -1,0 +1,8 @@
+{
+    email Behiveads@gmail.com
+}
+
+behiveads.com, www.behiveads.com {
+    encode gzip zstd
+    reverse_proxy wordpress:80
+}

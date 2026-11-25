@@ -1,0 +1,85 @@
+# ============================================================================
+# docker-compose.local.yml — ISOLATED local development stack
+#
+# Project name:  behiveads-local
+# Access URL:    http://localhost:8080
+#
+# Completely separate from docker-compose.yml (production/EC2):
+#   • Different Compose project name  → different volume namespace
+#   • Local-only credentials (see .env.localdev)
+#   • No Caddy — Apache serves on port 8080 directly
+#   • Backup archives mounted read-only; never written to
+#   • Sentinel volume prevents re-running the restore on restart
+#
+# Commands:
+#   Build:   docker compose -f docker-compose.local.yml --project-name behiveads-local build
+#   Start:   docker compose -f docker-compose.local.yml --project-name behiveads-local up -d
+#   Logs:    docker compose -f docker-compose.local.yml --project-name behiveads-local logs -f
+#   Stop:    docker compose -f docker-compose.local.yml --project-name behiveads-local down
+#   (Never run "down -v" unless you want to destroy local volumes)
+# ============================================================================
+
+name: behiveads-local   # Compose V2 project name — isolates all volumes
+
+services:
+
+  # ── MySQL (local-only credentials) ─────────────────────────────────────────
+  db_local:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE:      wp_local
+      MYSQL_USER:          wp_local_user
+      MYSQL_PASSWORD:      wp_local_pass_2024
+      MYSQL_ROOT_PASSWORD: wp_local_root_2024
+    volumes:
+      - local_db_data:/var/lib/mysql
+    healthcheck:
+      # Use mysqladmin with inline credentials — no shell variable expansion
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uwp_local_user", "-pwp_local_pass_2024"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── WordPress + Apache (port 8080, no Caddy) ────────────────────────────────
+  wordpress_local:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    restart: unless-stopped
+    ports:
+      - "8081:80"           # localhost:8081 → Apache inside container
+    env_file:
+      - .env.localdev
+    environment:
+      WP_ENV:              local
+      WP_HOME:             http://localhost:8081
+      # Override RENDER_EXTERNAL_URL so wp-config.php never falls back to prod
+      RENDER_EXTERNAL_URL: http://localhost:8081
+      WORDPRESS_DB_HOST:   db_local:3306
+    depends_on:
+      db_local:
+        condition: service_healthy
+    volumes:
+      # Persistent WordPress files volume (isolated — prefix: behiveads-local_)
+      - local_wp_data:/var/www/html
+      # Theme bind-mount — always uses your local source files
+      - ./theme:/var/www/html/wp-content/themes/habitat-leadgen
+      # Backup archives — READ-ONLY, never modified
+      - type: bind
+        source: C:/Users/vinay/Downloads/website-backup
+        target: /backups
+        read_only: true
+      # Sentinel volume — a named volume so the sentinel file survives restarts
+      # but is NOT part of wp data (can be removed independently if you need
+      # to force a fresh restore).
+      - local_restore_sentinel:/var
+
+volumes:
+  local_db_data:
+    # Named volume — isolated under project "behiveads-local"
+  local_wp_data:
+    # Named volume — isolated under project "behiveads-local"
+  local_restore_sentinel:
+    # Holds /var/local-restore-done sentinel file only
