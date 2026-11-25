@@ -126,7 +126,7 @@ function hlead_pages() {
     /* ------------------------------------------------------------------ */
     'plumbing-2' => array(
       'page_title'   => 'Plumbing Services — Get a Quote | BehiveAds',
-      'brand'        => 'BehiveAds Plumbing',
+      'brand'        => 'BehiveAds Plumbing 2',
       'h1'           => 'Plumbing problems solved — get a quote today',
       'lead'         => 'Describe your plumbing issue and a local licensed plumber will come out, give you a straight quote, and fix it properly the first time.',
       'tick1'        => 'Quote included',
